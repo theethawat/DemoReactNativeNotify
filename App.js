@@ -3,6 +3,7 @@ import messaging from "@react-native-firebase/messaging";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function App() {
+  const [fcmToken, setFcmToken] = useState("");
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
       console.log("New FCM message is Arrive", remoteMessage);
@@ -28,9 +29,25 @@ export default function App() {
     return unsubscribe;
   }, []);
 
+  useEffect(() => {
+    messaging()
+      .getToken()
+      .then((token) => {
+        console.log("Token is Generated ", token);
+        setFcmToken(token);
+        return;
+      });
+
+    return messaging().onTokenRefresh((token) => {
+      console.log("On Token Refresh is called");
+      setFcmToken(token);
+    });
+  }, []);
+
   return (
     <View style={styles.container}>
       <Text>Open up App.js to start working on your app!</Text>
+      <Text>Token {fcmToken}</Text>
     </View>
   );
 }
